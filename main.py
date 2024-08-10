@@ -14,6 +14,7 @@ MISTRAL_KEY = os.environ.get("MISTRAL_AI_API_KEY")
 
 bot = telebot.TeleBot(TOKEN, parse_mode=None) # You can set parse_mode by default. HTML or MARKDOWN
 client = MistralClient(api_key=MISTRAL_KEY)
+chat_history = []
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
@@ -27,5 +28,13 @@ def echo_all(message):
 		messages=[ChatMessage(role="user", content=str(message.text))]
 	)
 	bot.reply_to(message, mistral_response.choices[0].message.content)
+
+def add_user_message_to_history(role, message):
+	chat_history.append(ChatMessage(role=role, message = message))
+	return
+
+def get_history():
+	return chat_history
+
 
 bot.infinity_polling()
