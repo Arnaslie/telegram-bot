@@ -30,7 +30,7 @@ def echo_all(message):
 	bot.reply_to(message, mistral_response.choices[0].message.content)
 
 def add_user_message_to_history(role, message):
-	chat_history.append(ChatMessage(role=role, message = message))
+	chat_history.append(ChatMessage(role=role, content=message))
 	return
 
 def get_history():
