@@ -20,6 +20,10 @@ chat_history = []
 def send_welcome(message):
 	bot.reply_to(message, "Howdy, how are you doing?")
 
+@bot.message_handler(commands=['labas'])
+def send_sveikas(message)
+	bot.reply_to(message, "Sveikas seni, kaip tu?")
+
 @bot.message_handler(func=lambda m: True)
 def echo_all(message):
 	print("Sending to mistral ......")
