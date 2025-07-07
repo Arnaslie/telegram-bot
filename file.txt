@@ -1,0 +1,58 @@
+Test configuration:
+149.154.167.40:443
+DC 2
+
+Public keys:
+-----BEGIN RSA PUBLIC KEY-----
+MIIBCgKCAQEAyMEdY1aR+sCR3ZSJrtztKTKqigvO/vBfqACJLZtS7QMgCGXJ6XIR
+yy7mx66W0/sOFa7/1mAZtEoIokDP3ShoqF4fVNb6XeqgQfaUHd8wJpDWHcR2OFwv
+plUUI1PLTktZ9uW2WE23b+ixNwJjJGwBDJPQEQFBE+vfmH0JP503wr5INS1poWg/
+j25sIWeYPHYeOrFp/eXaqhISP6G+q2IeTaWTXpwZj4LzXq5YOpk4bYEQ6mvRq7D1
+aHWfYmlEGepfaYR8Q0YqvvhYtMte3ITnuSJs171+GDqpdKcSwHnd6FudwGO4pcCO
+j4WcDuXc2CTHgH8gFTNhp/Y8/SpDOhvn9QIDAQAB
+-----END RSA PUBLIC KEY-----
+Production configuration:
+149.154.167.50:443
+DC 2
+
+Public keys:
+-----BEGIN RSA PUBLIC KEY-----
+MIIBCgKCAQEA6LszBcC1LGzyr992NzE0ieY+BSaOW622Aa9Bd4ZHLl+TuFQ4lo4g
+5nKaMBwK/BIb9xUfg0Q29/2mgIR6Zr9krM7HjuIcCzFvDtr+L0GQjae9H0pRB2OO
+62cECs5HKhT5DZ98K33vmWiLowc621dQuwKWSQKjWf50XYFw42h21P2KXUGyp2y/
++aEyZ+uVgLLQbRA1dEjSDZ2iGRy12Mk5gpYc397aYp438fsJoHIgJ2lgMv5h7WY9
+t6N/byY9Nw9p21Og3AoXSL2q/2IJ1WRUhebgAdGVMlV1fkuOQoEzR7EdpqtQD9Cs
+5+bfo3Nhmcyvk5ftB0WkJ9z6bNZ7yxrP8wIDAQAB
+-----END RSA PUBLIC KEY-----
+
+
+Hello, this is my first time trying to use a cloud service to host my own project and I'm having some trouble with handling the deploying and having my code work properly. 
+
+Context: I build a simple messaging Bot (T*l*gram) that uses AI to handle incoming messages. I had the bot working on my development machine where I was able to interact with it in the T*l*gram client. I decided to move it to the Cloud to handle the 24/7 hosting that I want for this application. I've pinpointed Cloud Functions as the service I'd like to use from Google Cloud. I walked through the Quickstart to get an idea of how it works, thankfully it's not too complicated. I'm encountering a problem with the final deployment that comes after a successful build. 
+
+Source Code:
+
+@bot.message_handler(func=lambda m: True)
+def echo_all(message):
+print("Sending to mistral ......")
+mistral_response = client.chat(
+model="mistral-small-latest",
+messages=[ChatMessage(role="user", content=str(message.text))]
+)
+bot.reply_to(message, mistral_response.choices[0].message.content)
+
+bot.infinity_polling()
+Now, I need to define an entry point for Cloud Functions and uncovered that I would need to add that to my code with the use of the flask and functions_framework libraries like so,
+
+@functions_framework.http
+def hello(request: flask.Request) -> flask.typing.ResponseReturnValue:
+
+return "Hello, world!"
+
+So as you can my bot is originally polling in order to wait for requests and forward those to the single handler. I think this is where my deployment is getting stuck because the build succeeds but past that the deployment fails as it seems to be hanging for a prolonged period of time. I tried local testing the deployment like so,
+
+$ functions-framework --target hello --source ./main.py --debug
+
+and from here I see that the text that would pop up in the console to confirm that the server has started as one would see when starting up a flask server -- doesn't show up because the bot is already polling.
+
+I've tried hacking something where I stick the polling function inside the entry point route but that doesn't work. Any help is greatly appreciated, and if this seems like a noob question, you're probably right.
